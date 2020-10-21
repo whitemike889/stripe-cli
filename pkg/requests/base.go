@@ -160,7 +160,6 @@ func (rb *Base) MakeRequest(apiKey, path string, params *RequestParameters, errO
 	}
 
 	if rb.GenerateLang != "" {
-
 		resp, err := http.Get("http://localhost:3000/example")
 		if err != nil {
 			return []byte{}, err
