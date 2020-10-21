@@ -161,9 +161,6 @@ func (rb *Base) MakeRequest(apiKey, path string, params *RequestParameters, errO
 	}
 
 	if rb.GenerateLang != "" {
-		fmt.Printf("data: %+v\n", data)
-		fmt.Printf("path: %+v\n", path)
-		fmt.Printf("method: %+v\n", rb.Method)
 		type RequestData struct {
 			Lang    string `json:"lang"`
 			TestKey string `json:"test_key"`
