@@ -2,6 +2,7 @@ package requests
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -160,7 +161,28 @@ func (rb *Base) MakeRequest(apiKey, path string, params *RequestParameters, errO
 	}
 
 	if rb.GenerateLang != "" {
-		resp, err := http.Get("http://localhost:3000/example")
+		fmt.Printf("data: %+v\n", data)
+		fmt.Printf("path: %+v\n", path)
+		fmt.Printf("method: %+v\n", rb.Method)
+		type RequestData struct {
+			Lang    string `json:"lang"`
+			TestKey string `json:"test_key"`
+			Path    string `json:"path"`
+			Method  string `json:"method"`
+			Params  string `json:"params"`
+		}
+		requestData := RequestData{
+			Lang:    rb.GenerateLang,
+			TestKey: apiKey,
+			Path:    path,
+			Method:  rb.Method,
+			Params:  data,
+		}
+		requestDataBody, err := json.Marshal(requestData)
+		if err != nil {
+			return []byte{}, err
+		}
+		resp, err := http.Post("http://localhost:3000/example", "application/json", bytes.NewReader(requestDataBody))
 		if err != nil {
 			return []byte{}, err
 		}
@@ -176,6 +198,7 @@ func (rb *Base) MakeRequest(apiKey, path string, params *RequestParameters, errO
 		fmt.Print(exampleResponse.Result, "\n")
 		return []byte("a"), nil
 	}
+
 	resp, err := client.PerformRequest(context.TODO(), rb.Method, path, data, configureReq)
 	if err != nil {
 		return []byte{}, err
