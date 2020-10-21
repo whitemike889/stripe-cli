@@ -3,6 +3,7 @@ package requests
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -59,6 +60,8 @@ type Base struct {
 
 	autoConfirm bool
 	showHeaders bool
+
+	GenerateLang string
 }
 
 var confirmationCommands = map[string]bool{http.MethodDelete: true}
@@ -107,6 +110,7 @@ func (rb *Base) InitFlags() {
 	rb.Cmd.Flags().StringVarP(&rb.Parameters.idempotency, "idempotency", "i", "", "Set the idempotency key for the request, prevents replaying the same requests within 24 hours")
 	rb.Cmd.Flags().StringVarP(&rb.Parameters.version, "stripe-version", "v", "", "Set the Stripe API version to use for your request")
 	rb.Cmd.Flags().StringVar(&rb.Parameters.stripeAccount, "stripe-account", "", "Set a header identifying the connected account")
+	rb.Cmd.Flags().StringVar(&rb.GenerateLang, "generate-lang", "", "Generate example code instead of sending request")
 	rb.Cmd.Flags().BoolVarP(&rb.showHeaders, "show-headers", "s", false, "Show response headers")
 	rb.Cmd.Flags().BoolVar(&rb.Livemode, "live", false, "Make a live request (default: test)")
 	rb.Cmd.Flags().BoolVar(&rb.DarkStyle, "dark-style", false, "Use a darker color scheme better suited for lighter command-lines")
@@ -155,6 +159,24 @@ func (rb *Base) MakeRequest(apiKey, path string, params *RequestParameters, errO
 		rb.setVersionHeader(req, params)
 	}
 
+	if rb.GenerateLang != "" {
+
+		resp, err := http.Get("http://localhost:3000/example")
+		if err != nil {
+			return []byte{}, err
+		}
+		type ExampleResponse struct {
+			Result string `json:"result"`
+		}
+		exampleResponse := ExampleResponse{}
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return []byte{}, err
+		}
+		json.Unmarshal(body, &exampleResponse)
+		fmt.Print(exampleResponse.Result, "\n")
+		return []byte("a"), nil
+	}
 	resp, err := client.PerformRequest(context.TODO(), rb.Method, path, data, configureReq)
 	if err != nil {
 		return []byte{}, err
