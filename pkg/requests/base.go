@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -179,8 +180,19 @@ func (rb *Base) MakeRequest(apiKey, path string, params *RequestParameters, errO
 		if err != nil {
 			return []byte{}, err
 		}
-		resp, err := http.Post("http://localhost:3000/example", "application/json", bytes.NewReader(requestDataBody))
+		httpClient := http.Client{
+			Transport: &http.Transport{
+				DialContext: func(_ context.Context, _, _ string) (net.Conn, error) {
+					return net.Dial("unix", os.Getenv("STRIPE_CLI_UNIX_SOCKET"))
+				},
+				DialTLS: func(network, addr string) (net.Conn, error) {
+					return net.Dial("unix", os.Getenv("STRIPE_CLI_UNIX_SOCKET"))
+				},
+			},
+		}
+		resp, err := httpClient.Post("http://richardg-docs-mydev.dev.stripe.me/example/example", "application/json", bytes.NewReader(requestDataBody))
 		if err != nil {
+			fmt.Print(err)
 			return []byte{}, err
 		}
 		type ExampleResponse struct {
@@ -189,6 +201,7 @@ func (rb *Base) MakeRequest(apiKey, path string, params *RequestParameters, errO
 		exampleResponse := ExampleResponse{}
 		body, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
+			fmt.Print(err)
 			return []byte{}, err
 		}
 		json.Unmarshal(body, &exampleResponse)
