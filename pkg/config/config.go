@@ -33,6 +33,7 @@ const ColorAuto = "auto"
 type Config struct {
 	Color        string
 	LogLevel     string
+	FromVSCode   string
 	Profile      Profile
 	ProfilesFile string
 }

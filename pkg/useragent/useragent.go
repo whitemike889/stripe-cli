@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"runtime"
 
+	"github.com/spf13/viper"
 	"github.com/stripe/stripe-cli/pkg/version"
 )
 
@@ -31,11 +32,12 @@ func GetEncodedUserAgent() string {
 // is serialized and sent in the `X-Stripe-Client-User-Agent` as additional
 // debugging information.
 type stripeClientUserAgent struct {
-	Name      string `json:"name"`
-	OS        string `json:"os"`
-	Publisher string `json:"publisher"`
-	Uname     string `json:"uname"`
-	Version   string `json:"version"`
+	Name          string `json:"name"`
+	OS            string `json:"os"`
+	Publisher     string `json:"publisher"`
+	Uname         string `json:"uname"`
+	Version       string `json:"version"`
+	VSCodeVersion string `json:"vscode_version"`
 }
 
 //
@@ -54,14 +56,20 @@ func init() {
 }
 
 func initUserAgent() {
+	vscodeVersion := viper.GetString("from-vscode")
+
 	encodedUserAgent = "Stripe/v1 stripe-cli/" + version.Version
+	if vscodeVersion != "" {
+		encodedUserAgent += "; Stripe/stripe-vscode/" + vscodeVersion
+	}
 
 	stripeUserAgent := &stripeClientUserAgent{
-		Name:      "stripe-cli",
-		Version:   version.Version,
-		Publisher: "stripe",
-		OS:        runtime.GOOS,
-		Uname:     getUname(),
+		Name:          "stripe-cli",
+		Version:       version.Version,
+		Publisher:     "stripe",
+		OS:            runtime.GOOS,
+		Uname:         getUname(),
+		VSCodeVersion: vscodeVersion,
 	}
 	marshaled, err := json.Marshal(stripeUserAgent)
 	// Encoding this struct should never be a problem, so we're okay to panic

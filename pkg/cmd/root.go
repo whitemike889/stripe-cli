@@ -112,10 +112,15 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&Config.ProfilesFile, "config", "", "config file (default is $HOME/.config/stripe/config.toml)")
 	rootCmd.PersistentFlags().StringVar(&Config.Profile.DeviceName, "device-name", "", "device name")
 	rootCmd.PersistentFlags().StringVar(&Config.LogLevel, "log-level", "info", "log level (debug, info, warn, error)")
+	rootCmd.PersistentFlags().StringVar(&Config.FromVSCode, "from-vscode", "", "The version of VS Code running the command")
 	rootCmd.PersistentFlags().StringVarP(&Config.Profile.ProfileName, "project-name", "p", "default", "the project name to read from for config")
 	rootCmd.Flags().BoolP("version", "v", false, "Get the version of the Stripe CLI")
 
+	// This flag is to help us know when VS Code is interacting with the CLI instead of a user
+	rootCmd.Flags().MarkHidden("from-vscode")
+
 	viper.BindPFlag("color", rootCmd.PersistentFlags().Lookup("color"))
+	viper.BindPFlag("from-vscode", rootCmd.PersistentFlags().Lookup("from-vscode"))
 
 	rootCmd.AddCommand(newCompletionCmd().cmd)
 	rootCmd.AddCommand(newConfigCmd().cmd)
