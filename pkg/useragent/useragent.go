@@ -2,6 +2,7 @@ package useragent
 
 import (
 	"encoding/json"
+	"os"
 	"runtime"
 
 	"github.com/stripe/stripe-cli/pkg/version"
@@ -36,6 +37,7 @@ type stripeClientUserAgent struct {
 	Publisher string `json:"publisher"`
 	Uname     string `json:"uname"`
 	Version   string `json:"version"`
+	Term      string `json:"term_program"`
 }
 
 //
@@ -54,7 +56,12 @@ func init() {
 }
 
 func initUserAgent() {
+	termProgram := os.Getenv("TERM_PROGRAM")
+
 	encodedUserAgent = "Stripe/v1 stripe-cli/" + version.Version
+	if termProgram != "" {
+		encodedUserAgent += "; term_program/" + termProgram
+	}
 
 	stripeUserAgent := &stripeClientUserAgent{
 		Name:      "stripe-cli",
@@ -62,6 +69,7 @@ func initUserAgent() {
 		Publisher: "stripe",
 		OS:        runtime.GOOS,
 		Uname:     getUname(),
+		Term:      termProgram,
 	}
 	marshaled, err := json.Marshal(stripeUserAgent)
 	// Encoding this struct should never be a problem, so we're okay to panic
