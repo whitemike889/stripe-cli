@@ -39,10 +39,9 @@ require (
 	github.com/tidwall/pretty v1.1.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
-	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
-	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
-	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015
-	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
+	golang.org/x/net v0.7.0 // indirect
+	golang.org/x/sys v0.5.0
+	golang.org/x/term v0.5.0
 	google.golang.org/genproto v0.0.0-20210422153429-2279cbceda62 // indirect
 	google.golang.org/grpc v1.37.0
 	google.golang.org/protobuf v1.26.0
